@@ -1,8 +1,7 @@
 {
   nixConfig = {
     extra-substituters = "https://cache.garnix.io";
-    extra-trusted-public-keys =
-      "cache.garnix.io:CTFPyKSLcx5RMJKfLo5EEPUObbA78b0YQ2DTCJXqr9g=";
+    extra-trusted-public-keys = "cache.garnix.io:CTFPyKSLcx5RMJKfLo5EEPUObbA78b0YQ2DTCJXqr9g=";
   };
 
   inputs = {
@@ -12,28 +11,46 @@
     flake-parts.follows = "emanote/flake-parts";
   };
 
-  outputs = inputs@{ self, flake-parts, nixpkgs, ... }:
+  outputs =
+    inputs@{
+      self,
+      flake-parts,
+      nixpkgs,
+      ...
+    }:
     flake-parts.lib.mkFlake { inherit inputs; } {
       systems = nixpkgs.lib.systems.flakeExposed;
       imports = [ inputs.emanote.flakeModule ];
-      perSystem = { self', pkgs, system, ... }: {
-        emanote = {
-          # By default, the 'emanote' flake input is used.
-          # package = inputs.emanote.packages.${system}.default;
-          sites."default" = {
-            layers = [{
-              path = ./.;
-              pathString = ".";
-            }];
-            # port = 8080;
-            baseUrl =
-              "/Wiki/"; # Change to "/" (or remove it entirely) if using CNAME
-            # prettyUrls = true;
+      perSystem =
+        {
+          self',
+          pkgs,
+          system,
+          ...
+        }:
+        {
+          emanote = {
+            # By default, the 'emanote' flake input is used.
+            # package = inputs.emanote.packages.${system}.default;
+            sites = rec {
+              default = {
+                layers = [
+                  {
+                    path = ./.;
+                    pathString = ".";
+                  }
+                ];
+              }; # port = 8080;
+
+              github-io = default // {
+                check = false;
+                extraConfig.template.baseUrl = "/Wiki/";
+              };
+
+            };
           };
+          devShells.default = pkgs.mkShell { buildInputs = [ pkgs.nixpkgs-fmt ]; };
+          formatter = pkgs.nixpkgs-fmt;
         };
-        devShells.default =
-          pkgs.mkShell { buildInputs = [ pkgs.nixpkgs-fmt ]; };
-        formatter = pkgs.nixpkgs-fmt;
-      };
     };
 }
