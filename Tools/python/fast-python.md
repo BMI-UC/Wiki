@@ -89,7 +89,7 @@ languages can work. Give rust a try!
 - [C/C++ guide](https://realpython.com/python-bindings-overview/#python-bindings-overview)
 - [Rust guide](https://pyo3.rs/v0.27.0/)
 
-> ![info] This may be the only way to really speed up rust code
+> [!info] This may be the only way to really speed up rust code
 
 ## Compile it!
 
